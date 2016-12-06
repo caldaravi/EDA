@@ -51,8 +51,30 @@ public class Lista {
 		}
 	}
 	
-	public void inserta(ArrayList<Coordenadas> v, int i) throws IndexOutOfBoundsException{ //TODO
-		
+	public void inserta(ArrayList<Coordenadas> v, int i) throws IndexOutOfBoundsException{ //done
+		if(v!=null){
+			if(!esVacia() && i>=0 && i<this.getTamanyoLista()){ 
+				NodoL nuevo = new NodoL(v);
+				NodoL aux = pr;
+	
+					if(i==0){
+						insertaCabeza(v);
+					}
+					else{
+						int j = 1;
+						while(j<i){
+							aux = aux.getNext();
+							j++;
+						}
+						nuevo.cambiaNext(aux.getNext());
+						aux.cambiaNext(nuevo);
+						tamLista++;
+					}
+			}
+			else{
+				throw new IndexOutOfBoundsException(Integer.toString(i));
+			}
+		}
 	}
 	
 	public boolean borraCabeza(){ //done
@@ -109,8 +131,43 @@ public class Lista {
 		return done;
 	}
 	
-	public void borra(int i) throws IndexOutOfBoundsException{ //TODO
-		
+	public void borra(int pos) throws IndexOutOfBoundsException{ //done
+		//lo primero que hago es comprobar que la lista no esta vacia y que 
+		//pos esta en la lista
+		if(!esVacia() && pos>=0 && pos<tamLista){
+			//si el entero que me pasan es el primero o el ultimo de la lista
+			//llamo a borraCabeza o borraCola respectivamente
+			if(pos == 0){
+				borraCabeza();
+			}
+			else{
+				if(pos == tamLista-1){
+					borraCola();
+				}
+				else{
+					//creo dos nodos auxiliares, uno para llegar a la posicion a borrar
+					//y el otro para quedarse detras y ser el que apunte al siguiente de pos
+					NodoL aux1 = pr.getNext();
+					NodoL aux2 = pr;
+					int i = 1;//inicializo i a 1 porque ya he comprobado 0
+					while(i<pos){
+						//busco la posicion que me pasan avanzando con los dos nodos
+						//uno detras del otro
+						aux2 = aux1;
+						aux1 = aux1.getNext();
+						i++;
+					}
+					//una vez encontrada la posicion, al nodo que queda detras le ponemos next 
+					//al next de aux1
+					aux2.cambiaNext(aux1.getNext());
+					tamLista--;
+				}
+			}
+		}
+		//si no lo esta lanzo y propago la excepcion
+		else{
+			throw new IndexOutOfBoundsException(Integer.toString(pos));
+		}
 	}
 	
 	public boolean borra(ArrayList<Coordenadas> v){ //done
@@ -135,13 +192,15 @@ public class Lista {
 					NodoL del = pr;
 					NodoL atr = null;
 					
-					while(!del.comparaCamino(v) || del.getNext()!=null){
+					while(!del.comparaCamino(v) && del.getNext()!=null){
 						atr = del;
 						del = del.getNext();
 					}
-					atr.cambiaNext(del.getNext());
-					done = true;
-					tamLista--;
+					if(del.comparaCamino(v)){
+						atr.cambiaNext(del.getNext());
+						done = true;
+						tamLista--;
+					}
 				}
 			}
 		}
@@ -155,12 +214,10 @@ public class Lista {
 			int pos = 1;
 			
 			for(int i=0; i<tamLista; i++){
-				if(!aux.getCamino().isEmpty()){
-					System.out.print("camino " + pos + ": ");
-					aux.escribeCamino();
-					aux = aux.getNext();
-					pos++;
-				}
+				System.out.print("camino " + pos + ": ");
+				aux.escribeCamino();
+				aux = aux.getNext();
+				pos++;
 			}
 		}
 	}
@@ -168,9 +225,12 @@ public class Lista {
 	public int enLista(ArrayList<Coordenadas> v){ //done
 		int pos =-1;
 		
-		NodoL aux = pr;
+		NodoL aux = pr;//creo un nodo aux para recorrer la lista
 		
+		//compruebo que v sea distinto de null y que hay nodos en lista
 		if(v!=null && !esVacia()){
+			//recorro la lista hasta el final, si encuentro el camino en 
+			//la lista me quedo con su posicion y salgo del for
 			for(int i=0; i<tamLista && pos==-1; i++){
 				if(aux.comparaCamino(v)){
 					pos = i;
@@ -181,13 +241,35 @@ public class Lista {
 		return pos;
 	}
 	
-	public ArrayList<Coordenadas> getCamino(int pos) throws IndexOutOfBoundsException{ //TODO
+	public ArrayList<Coordenadas> getCamino(int pos) throws IndexOutOfBoundsException{ //done
 		ArrayList<Coordenadas> camino = null;
+		
+		if(!esVacia() && pos>=0 && pos<tamLista){
+			if(pos == 0){
+				camino = pr.getCamino();
+			}
+			else{
+				if(pos == tamLista-1){
+					camino = ul.getCamino();
+				}
+				else{
+					NodoL aux = pr;
+					int i = 0;
+					while(i<pos){
+						aux = aux.getNext();
+						i++;
+					}
+					camino = aux.getCamino();
+				}
+			}
+		}
+		else{
+			throw new IndexOutOfBoundsException(Integer.toString(pos));
+		}
 		return camino;
 	}
 	
 	public int getTamanyoLista(){
-		
 		return tamLista;
 	}
 	
